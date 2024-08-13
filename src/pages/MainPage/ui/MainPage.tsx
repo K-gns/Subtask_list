@@ -1,9 +1,10 @@
 import React from 'react';
+import {TaskList} from "widgets/TaskList";
 
 const MainPage = () => {
     return (
         <div>
-            MainPage
+            <TaskList />
         </div>
     );
 };
