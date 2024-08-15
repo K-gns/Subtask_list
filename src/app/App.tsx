@@ -5,24 +5,29 @@ import {useTheme} from "app/providers/ThemeProvider";
 import {AppRouter} from "app/providers/router";
 import {Navbar} from "widgets/Navbar";
 import {Sidebar} from "widgets/Sidebar";
+import {Provider} from "mobx-react";
+import {sidebarStore} from 'app/stores/SidebarStore/SidebarStore'
+
 
 
 const App = () => {
     const [sidebarToggle, setSidebarToggle] = useState(true)
 
-   const { theme } = useTheme();
-   const toggleSidebar = () => {
-       setSidebarToggle((state) => !state)
-   }
+    const {theme} = useTheme();
+    const toggleSidebar = () => {
+        setSidebarToggle((state) => !state)
+    }
 
     return (
-        <div className={classNames('app', {}, [theme])}>
-            <Navbar />
-            <div className="content-page">
-                <Sidebar toggled={sidebarToggle}/>
-                <AppRouter />
+        <Provider sidebarStore={sidebarStore}>
+            <div className={classNames('app', {}, [theme])}>
+                <Navbar/>
+                <div className="content-page">
+                    <Sidebar toggled={sidebarToggle}/>
+                    <AppRouter/>
+                </div>
             </div>
-        </div>
+        </Provider>
     );
 };
 

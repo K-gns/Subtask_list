@@ -3,10 +3,14 @@ import cls from './TaskItem.module.scss'
 import {Task} from 'widgets/TaskList/ui/TaskList'
 import DropdownIconCollapsed from "shared/assets/icons/dropdown_icon_collapsed_16x16.svg";
 import DropdownIconExpanded from 'shared/assets/icons/dropdown_icon_expanded_16x16.svg'
+import { inject, observer } from 'mobx-react';
+import { sidebarStore } from 'app/stores/SidebarStore/SidebarStore';
+
 import DeleteIcon from 'shared/assets/icons/delete_button.svg'
 
 import React, {useState} from "react";
 import {MenuPopup} from "shared/ui/Popup/MenuPopup";
+
 
 interface TaskProps {
     className?: string;
@@ -29,7 +33,8 @@ export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
     }
 
     const openSideBar = () => {
-
+        sidebarStore.toggleSidebar()
+        console.log(sidebarStore.toggle)
     }
 
     return (
@@ -51,7 +56,6 @@ export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
                 <TaskItem key={item.id} task={item} hidden={!expanded} deleteNode={deleteNode}/>
             )}
         </ul>
-
 
     )
 };
