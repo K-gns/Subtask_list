@@ -1,14 +1,19 @@
 import { classNames } from 'shared/lib/classNames/classNames';
 import cls from './Sidebar.module.scss';
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {ThemeSwitcher} from "shared/ui/ThemeSwitcher";
 
 interface SidebarProps {
     className?: string;
+    toggled: boolean;
 }
 
-export const Sidebar = ({className}: SidebarProps) => {
-    const [collapsed, setCollapsed] = useState(false)
+export const Sidebar = ({className, toggled}: SidebarProps) => {
+    const [collapsed, setCollapsed] = useState(toggled)
+
+    useEffect(() => {
+        setCollapsed(prev => !prev);
+    }, [toggled])
 
     const onToggle = () => {
         setCollapsed(prev => !prev);
