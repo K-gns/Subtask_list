@@ -1,6 +1,6 @@
-// src/stores/SidebarStore.ts
 import {makeAutoObservable} from 'mobx';
 import {Task} from "widgets/TaskList/ui/TaskList";
+import debounce from "lodash/debounce";
 
 const taskDataMock: Task = {
     id: 1,
@@ -66,10 +66,10 @@ const insertTaskInTree = function (tree, commentId, item) {
     if (tree.id === commentId) {
         tree.subtasks.push({
             id: new Date().getTime(),
-            label: item,
+            label: item.label,
+            description: item.description,
             subtasks: [],
         });
-
 
         return tree;
     }
@@ -83,14 +83,15 @@ const insertTaskInTree = function (tree, commentId, item) {
 };
 
 //@ts-ignore
-const editTaskFromTree = (tree, commentId, value) => {
+const editTaskFromTree = (tree, commentId, label, description) => {
     if (tree.id === commentId) {
-        tree.label = value;
+        tree.label = label;
+        tree.description = description
         return tree;
     }
 
     tree.subtasks.map((ob: any) => {
-        return editTaskFromTree(ob, commentId, value);
+        return editTaskFromTree(ob, commentId, label, description);
     });
 
     return {...tree};
@@ -124,6 +125,9 @@ class SidebarStore {
     constructor() {
         makeAutoObservable(this);
         this.taskData = taskDataMock
+
+        this.loadFromLocalStorage();
+        this.saveToLocalStorage = debounce(this.saveToLocalStorage, 500);
     }
 
     toggleSidebar() {
@@ -134,6 +138,7 @@ class SidebarStore {
         this.taskId = id
         this.label = label
         this.description = taskDescription
+        this.saveToLocalStorage();
     }
 
     changeTaskID(id: number) {
@@ -142,16 +147,34 @@ class SidebarStore {
 
     changeTaskTitle(label: string) {
         this.label = label
+        this.taskData = editTaskFromTree(this.taskData, this.taskId, this.label, this.description)
+        this.saveToLocalStorage();
     }
 
     changeTaskDescription(taskDescription: string) {
         this.description = taskDescription
+        editTaskFromTree(this.taskData, this.taskId, this.label, this.description)
+        this.saveToLocalStorage();
     }
 
     deleteTask(id: number) {
         this.taskData = deleteTaskFromTree(this.taskData, id);
-        console.log(this.taskData)
+        this.saveToLocalStorage();
         return {...this.taskData}
+    }
+
+    saveToLocalStorage() {
+        localStorage.setItem('taskData', JSON.stringify(this.taskData));
+    }
+
+    // Метод для загрузки данных из localStorage
+    loadFromLocalStorage() {
+        const storedData = localStorage.getItem('taskData');
+        if (storedData) {
+            this.taskData = JSON.parse(storedData);
+        } else {
+            this.taskData = taskDataMock; // Если данных нет, используем mock
+        }
     }
 }
 

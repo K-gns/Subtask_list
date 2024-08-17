@@ -1,9 +1,8 @@
 import {classNames} from 'shared/lib/classNames/classNames';
 import cls from './Sidebar.module.scss';
 import React, {ChangeEvent} from "react";
-import {ThemeSwitcher} from "shared/ui/ThemeSwitcher";
 import {sidebarStore} from "app/stores/SidebarStore/SidebarStore";
-import {inject, observer} from "mobx-react";
+import debounce from "lodash/debounce";
 
 interface SidebarProps {
     className?: string;

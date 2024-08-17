@@ -1,6 +1,6 @@
 import {classNames} from "shared/lib/classNames/classNames";
 import cls from './TaskList.module.scss'
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {TaskItem} from "widgets/TaskItem";
 import {sidebarStore} from "app/stores/SidebarStore/SidebarStore";
 
@@ -17,6 +17,7 @@ export type Task = {
 
 export const TaskList = ({className}: TaskListProps) => {
     const [taskData, setTaskData] = useState(sidebarStore.taskData);
+
 
     const handleDeleteNode = (folderId: number) => {
         setTaskData(sidebarStore.deleteTask(folderId));
