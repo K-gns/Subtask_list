@@ -23,7 +23,7 @@ const App = () => {
             <div className={classNames('app', {}, [theme])}>
                 <Navbar/>
                 <div className="content-page">
-                    <Sidebar toggled={sidebarToggle}/>
+                    <Sidebar/>
                     <AppRouter/>
                 </div>
             </div>

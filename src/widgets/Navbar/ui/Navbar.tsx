@@ -12,7 +12,7 @@ export const Navbar = ({className}: NavbarProps) => {
         <div className={classNames(cls.navbar, {}, [className])}>
             <div className={cls.headerContainer}>
                 <div className="flexDummy"></div>
-                <h1>Template</h1>
+                <h1>Task-subtask app</h1>
                 <div className={cls.themeSwitcherContainer}>
                     <ThemeSwitcher/>
                 </div>

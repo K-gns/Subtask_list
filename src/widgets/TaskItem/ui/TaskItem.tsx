@@ -27,14 +27,20 @@ export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
         deleteNode(task.id)
     }
 
-    const expandChildrensComment = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+    const expandSubtasks = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
         e.stopPropagation()
         setExpanded((state) => !state)
     }
 
-    const openSideBar = () => {
-        sidebarStore.toggleSidebar()
-        console.log(sidebarStore.toggle)
+    const openSideBar = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+         //ToDo: Refactor
+        e.stopPropagation()
+        if (task.label != sidebarStore.label && sidebarStore.toggle == false) {
+            sidebarStore.changeCurrentTask(task.id, task.label, task.description)
+        } else {
+            sidebarStore.toggleSidebar()
+            sidebarStore.changeCurrentTask(task.id, task.label, task.description)
+        }
     }
 
     return (
@@ -44,7 +50,7 @@ export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
             <li key={task.id} onClick={openSideBar}
                 className={task.subtasks?.length > 0 ? cls.haveSubtasks : cls.noSubtasks}>
                 {task.subtasks?.length > 0 &&
-                    <span className={cls.dropdownIcon} onClick={expandChildrensComment}>
+                    <span className={cls.dropdownIcon} onClick={ expandSubtasks}>
                         {expanded ? <DropdownIconExpanded/> : <DropdownIconCollapsed/>}
                     </span>}
                 {task.label}

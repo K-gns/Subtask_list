@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import React from "react";
-import { IconButton } from "@mui/material";
+import {IconButton} from "@mui/material";
 
 interface PopupProps {
     className?: string;
@@ -17,15 +17,26 @@ interface PopupProps {
     Menu3Func?: any;
 }
 
-export const MenuPopup = ({className, Menu1Name, Menu1Func, Menu2Name, Menu2Func, Menu3Name, Menu3Func}: PopupProps) => {
+export const MenuPopup = ({
+                              className,
+                              Menu1Name,
+                              Menu1Func,
+                              Menu2Name,
+                              Menu2Func,
+                              Menu3Name,
+                              Menu3Func
+                          }: PopupProps) => {
 
     return (
         <PopupState variant="popover" popupId="demo-popup-menu">
-            {(popupState : any) => (
+            {(popupState: any) => (
                 <>
-                    <IconButton {
-                                    //@ts-ignore
-                                    ...bindTrigger(popupState)}>
+                    <IconButton
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            popupState.open(event);
+                        }}
+                    >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -45,7 +56,11 @@ export const MenuPopup = ({className, Menu1Name, Menu1Func, Menu2Name, Menu2Func
                     </IconButton>
 
                     <Menu {...bindMenu(popupState)}>
-                        <MenuItem onClick={Menu1Func}>{Menu1Name}</MenuItem>
+                        <MenuItem onClick={(event) => {
+                            event.stopPropagation();
+                            event.preventDefault();
+                            Menu1Func();
+                        }}>{Menu1Name}</MenuItem>
                         {Menu2Name && <MenuItem onClick={() => {
                             popupState.close;
                             Menu2Func;

@@ -1,15 +1,29 @@
 ul {
-  padding-left: 24px;
+  padding-left: 26px;
 }
 
 li {
   list-style: none;
-    line-height: 1.4;
+  line-height: 1.4;
+  width: 50%;
+  transition: background-color 0.3s ease;
+}
+
+li:hover {
+  background-color: rgba(63, 150, 213, 0.05); /* Полупрозрачный бежевый цвет */
 }
 
 .dropdownIcon {
-  margin-right: 10px;
+  margin-right: 4px;
+  width: 16px;
   fill: var(--accent-color);
+  padding: 4px;
+  //border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.dropdownIcon:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .hidden {
