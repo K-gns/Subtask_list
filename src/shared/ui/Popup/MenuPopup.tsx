@@ -56,7 +56,11 @@ export const MenuPopup = ({
                     </IconButton>
 
                     <Menu {...bindMenu(popupState)}>
-                        <MenuItem onClick={(event) => {
+                        <MenuItem
+                            sx={{
+                                'width' : "100%"
+                                }}
+                            onClick={(event) => {
                             event.stopPropagation();
                             event.preventDefault();
                             Menu1Func();

@@ -10,10 +10,6 @@ interface SidebarProps {
 
 export const Sidebar = ({className}: SidebarProps) => {
 
-    const onToggle = () => {
-        sidebarStore.toggleSidebar()
-    }
-
     const onLabelChange = (event: ChangeEvent<HTMLInputElement>) => {
         sidebarStore.changeTaskTitle(event.target.value)
     }
@@ -22,11 +18,18 @@ export const Sidebar = ({className}: SidebarProps) => {
         sidebarStore.changeTaskDescription(event.target.value)
     };
 
+    const handleSave = () => {
+        sidebarStore.toggleSidebar()
+    }
+
+    const handleDelete = () => {
+        sidebarStore.deleteCurrentSidebarTask()
+    }
+
     return (
         <div
-            className={classNames(cls.Sidebar, {[cls.collapsed]: sidebarStore.toggle}, [className])}
+            className={classNames(cls.Sidebar, {[cls.collapsed]: !sidebarStore.toggle}, [className])}
         >
-            {/*<button onClick={onToggle}>toggle</button>*/}
             <div className={cls.sidebarContainer}>
                 <div className={cls.sidebarHeader}>
                     <input
@@ -46,8 +49,8 @@ export const Sidebar = ({className}: SidebarProps) => {
                 ></textarea>
                 </div>
                 <div className={cls.sidebarActions}>
-                    <button className={cls.saveButton} >Save</button>
-                    <button className={cls.deleteButton}>Delete</button>
+                    <button className={cls.saveButton} onClick={handleSave}>Save</button>
+                    {/*<button className={cls.deleteButton} onClick={handleDelete}>Delete</button>*/}
                 </div>
             </div>
         </div>

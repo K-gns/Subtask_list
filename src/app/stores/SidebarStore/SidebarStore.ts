@@ -33,6 +33,7 @@ const taskDataMock: Task = {
                     {
                         id: 108,
                         label: "Subtask 3",
+                        description: "",
                         subtasks: [
                             {id: 109, label: "Subsubtask 1", description: "Subsubtask 1 description", subtasks: []},
                             {id: 110, label: "Subsubtask 2", description: "Subsubtask 2 description", subtasks: []}
@@ -60,10 +61,25 @@ const taskDataMock: Task = {
     ]
 }
 
-//Функции взаимодействия с деревом комменатариев
-//@ts-ignore
-const insertTaskInTree = function (tree, commentId, item) {
-    if (tree.id === commentId) {
+//Функции взаимодействия с деревом задач
+const findTaskInTree = (tree: Task, id: number): [string, string] | null => {
+    if (tree.id === id) {
+        return [tree.label ?? "undefined", tree.description ?? ""];
+    }
+
+    for (let i = 0; i < tree.subtasks.length; i++) {
+        const currentItem = tree.subtasks[i];
+        const result = findTaskInTree(currentItem, id);
+        if (result) {
+            return result
+        }
+    }
+
+    return null;
+};
+
+const insertTaskInTree = function (tree: Task, taskId: number, item : {label: string, description: string}) : Task {
+    if (tree.id === taskId) {
         tree.subtasks.push({
             id: new Date().getTime(),
             label: item.label,
@@ -76,29 +92,27 @@ const insertTaskInTree = function (tree, commentId, item) {
 
     let latestNode = [];
     latestNode = tree.subtasks.map((ob: any) => {
-        return insertTaskInTree(ob, commentId, item);
+        return insertTaskInTree(ob, taskId, item);
     });
 
     return {...tree, subtasks: latestNode};
 };
 
-//@ts-ignore
-const editTaskFromTree = (tree, commentId, label, description) => {
-    if (tree.id === commentId) {
+const editTaskFromTree = (tree: Task, taskId: number, label: string, description: string) => {
+    if (tree.id === taskId) {
         tree.label = label;
         tree.description = description
         return tree;
     }
 
     tree.subtasks.map((ob: any) => {
-        return editTaskFromTree(ob, commentId, label, description);
+        return editTaskFromTree(ob, taskId, label, description);
     });
 
     return {...tree};
 };
 
-//@ts-ignore
-const deleteTaskFromTree = (tree, id) => {
+const deleteTaskFromTree = (tree: Task, id: number) : Task => {
     for (let i = 0; i < tree.subtasks.length; i++) {
         const currentItem = tree.subtasks[i];
         if (currentItem.id === id) {
@@ -113,9 +127,7 @@ const deleteTaskFromTree = (tree, id) => {
 
 
 class SidebarStore {
-    //@ts-ignore
-    taskData: Task = []
-
+    taskData: Task = {id: 1, label: "root"}
     toggle = false;
 
     taskId = 0
@@ -124,6 +136,7 @@ class SidebarStore {
 
     constructor() {
         makeAutoObservable(this);
+
         this.taskData = taskDataMock
 
         this.loadFromLocalStorage();
@@ -134,15 +147,33 @@ class SidebarStore {
         this.toggle = !this.toggle;
     }
 
-    changeCurrentTask(id: number, label: string, taskDescription: string) {
-        this.taskId = id
-        this.label = label
-        this.description = taskDescription
+    addUntitledTask(parentId?: number) {
+        let folderId = parentId || 1
+        let updatedTree = insertTaskInTree(this.taskData, folderId,
+            {label: "Untitled", description: ""})
+        this.taskData = {...updatedTree}
         this.saveToLocalStorage();
+        return {...this.taskData}
+
     }
 
-    changeTaskID(id: number) {
+    changeCurrentTask(id: number) {
         this.taskId = id
+        console.log(id)
+        let result = findTaskInTree(this.taskData, this.taskId)
+
+        if (result) {
+            const [label, description] = result;
+            this.label = label;
+            this.description = description;
+        } else {
+            console.error(`Task with ID ${id} not found.`);
+            this.label = "Task not found";
+            this.description = "";
+            this.toggle = false;
+        }
+
+        this.saveToLocalStorage();
     }
 
     changeTaskTitle(label: string) {
@@ -157,9 +188,23 @@ class SidebarStore {
         this.saveToLocalStorage();
     }
 
+
     deleteTask(id: number) {
         this.taskData = deleteTaskFromTree(this.taskData, id);
+        console.log(`delete task: ${id == this.taskId}`)
+        if (id == this.taskId) {
+
+            this.toggleSidebar()
+        }
+        console.log(id)
         this.saveToLocalStorage();
+        return {...this.taskData}
+    }
+
+    deleteCurrentSidebarTask() {
+        this.taskData = deleteTaskFromTree(this.taskData, this.taskId);
+        this.saveToLocalStorage();
+        this.toggle = false;
         return {...this.taskData}
     }
 
@@ -167,7 +212,6 @@ class SidebarStore {
         localStorage.setItem('taskData', JSON.stringify(this.taskData));
     }
 
-    // Метод для загрузки данных из localStorage
     loadFromLocalStorage() {
         const storedData = localStorage.getItem('taskData');
         if (storedData) {

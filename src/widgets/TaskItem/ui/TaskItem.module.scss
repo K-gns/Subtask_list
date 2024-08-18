@@ -10,7 +10,7 @@ li {
 }
 
 li:hover {
-  background-color: rgba(63, 150, 213, 0.05); /* Полупрозрачный бежевый цвет */
+  background-color: rgba(63, 150, 213, 0.05);
 }
 
 .dropdownIcon {
@@ -18,11 +18,17 @@ li:hover {
   width: 16px;
   fill: var(--accent-color);
   padding: 4px;
-  //border-radius: 50%;
   transition: background-color 0.3s ease;
 }
 
-.dropdownIcon:hover {
+.addIcon {
+  width: 16px;
+  fill: var(--primary-color);
+  padding: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.dropdownIcon:hover, .addIcon:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -32,11 +38,14 @@ li:hover {
 
 .haveSubtasks {
   cursor: pointer;
-  //background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path d="M7.247 11.14l-4.796-4.796a.75.75 0 1 1 1.06-1.06L8 9.068l4.488-4.49a.75.75 0 1 1 1.06 1.06l-4.796 4.797a.75.75 0 0 1-1.06 0z"/></svg>') no-repeat left center;
   background-size: 16px 16px;
 }
 
 .noSubtasks {
   cursor: default;
   margin-left: 24px;
+}
+
+.taskName {
+  margin-right: 5px;
 }

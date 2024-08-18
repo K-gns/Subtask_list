@@ -3,10 +3,9 @@ import cls from './TaskItem.module.scss'
 import {Task} from 'widgets/TaskList/ui/TaskList'
 import DropdownIconCollapsed from "shared/assets/icons/dropdown_icon_collapsed_16x16.svg";
 import DropdownIconExpanded from 'shared/assets/icons/dropdown_icon_expanded_16x16.svg'
-import { inject, observer } from 'mobx-react';
+import AddIcon from 'shared/assets/icons/addIcon16x16.svg'
 import { sidebarStore } from 'app/stores/SidebarStore/SidebarStore';
 
-import DeleteIcon from 'shared/assets/icons/delete_button.svg'
 
 import React, {useState} from "react";
 import {MenuPopup} from "shared/ui/Popup/MenuPopup";
@@ -16,15 +15,17 @@ interface TaskProps {
     className?: string;
     task: Task;
     hidden: boolean;
-    deleteNode: (folderId: number) => void;
+    updateTaskData: (taskData: Task[]) => void;
     toggleSubtask?: (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => void
 }
 
-export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
+export const TaskItem = ({className, task, hidden, updateTaskData }: TaskProps) => {
     const [expanded, setExpanded] = useState(false)
 
     const handleDelete = () => {
-        deleteNode(task.id)
+        let taskData = sidebarStore.deleteTask(task.id)
+        //@ts-ignore
+        updateTaskData(taskData)
     }
 
     const expandSubtasks = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
@@ -32,14 +33,24 @@ export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
         setExpanded((state) => !state)
     }
 
+    const addTask = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+        e.stopPropagation()
+        let newTaskData = sidebarStore.addUntitledTask(task.id)
+        if (!expanded) {
+            setExpanded(true)
+        }
+        //@ts-ignore
+        updateTaskData(newTaskData)
+    }
+
     const openSideBar = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
          //ToDo: Refactor
         e.stopPropagation()
-        if (task.label != sidebarStore.label && sidebarStore.toggle == false) {
-            sidebarStore.changeCurrentTask(task.id, task.label, task.description)
+        if (task.label != sidebarStore.label && sidebarStore.toggle == true) {
+            sidebarStore.changeCurrentTask(task.id)
         } else {
             sidebarStore.toggleSidebar()
-            sidebarStore.changeCurrentTask(task.id, task.label, task.description)
+            sidebarStore.changeCurrentTask(task.id)
         }
     }
 
@@ -53,13 +64,17 @@ export const TaskItem = ({className, task, hidden, deleteNode}: TaskProps) => {
                     <span className={cls.dropdownIcon} onClick={ expandSubtasks}>
                         {expanded ? <DropdownIconExpanded/> : <DropdownIconCollapsed/>}
                     </span>}
-                {task.label}
-                <MenuPopup Menu1Name="Delete" Menu1Func={handleDelete}></MenuPopup>
+                <span className={cls.taskName}>{task.label}</span>
+                <MenuPopup Menu1Name="Delete" Menu1Func={handleDelete} />
+                <span className={cls.addIcon} onClick={addTask}><AddIcon/></span>
             </li>
 
             {/*Рендер дочерних комментариев*/}
             {task.subtasks?.length > 0 && task.subtasks.map((item, index) =>
-                <TaskItem key={item.id} task={item} hidden={!expanded} deleteNode={deleteNode}/>
+                <TaskItem key={item.id} task={item}
+                          hidden={!expanded}
+                          updateTaskData={updateTaskData}
+                />
             )}
         </ul>
 

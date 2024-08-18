@@ -18,9 +18,14 @@ export type Task = {
 export const TaskList = ({className}: TaskListProps) => {
     const [taskData, setTaskData] = useState(sidebarStore.taskData);
 
+    // useEffect(() => {
+    //     setTaskData(sidebarStore.taskData)
+    // }, [sidebarStore.taskData]);
 
-    const handleDeleteNode = (folderId: number) => {
-        setTaskData(sidebarStore.deleteTask(folderId));
+
+    const handleUpdateTaskData = (taskData: Task[]) => {
+        //@ts-ignore
+        setTaskData(taskData);
     };
 
     return (
@@ -29,7 +34,7 @@ export const TaskList = ({className}: TaskListProps) => {
                 <TaskItem key={item.id}
                           task={item}
                           hidden={false}
-                          deleteNode={handleDeleteNode}
+                          updateTaskData={handleUpdateTaskData}
                 />
             )}
         </div>
