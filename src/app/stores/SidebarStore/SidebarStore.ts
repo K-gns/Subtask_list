@@ -219,8 +219,6 @@ class SidebarStore {
                 this.selectedTasks.delete(task.id);
             }
 
-
-
             task.subtasks.forEach(subtask => {
                 toggleSelectionInTree(subtask, isChecked);
             });
@@ -230,8 +228,8 @@ class SidebarStore {
         if (task) {
             //@ts-ignore
             toggleSelectionInTree(task, isChecked);
+            this.checkParentTaskSelection(taskId);
         }
-        console.log(this.selectedTasks)
     }
 
     toggleSelectAll(isChecked: boolean) {
@@ -255,7 +253,39 @@ class SidebarStore {
         return this.selectedTasks.size === totalTasks;
     }
 
-    //Проверяет количество дочерних задач у задачи
+    checkParentTaskSelection(taskId: number) {
+        const findParentTask = (task: Task, childId: number): Task | null => {
+            for (let subtask of task.subtasks) {
+                if (subtask.id === childId) {
+                    return task;
+                } else {
+                    const result = findParentTask(subtask, childId);
+                    if (result) {
+                        return result;
+                    }
+                }
+            }
+            return null;
+        };
+
+        const parentTask = findParentTask(this.taskData, taskId);
+
+        if (parentTask) {
+            const areAllChildrenSelected = parentTask.subtasks.every((subtask) =>
+                this.selectedTasks.has(subtask.id)
+            );
+
+            if (areAllChildrenSelected) {
+                this.selectedTasks.add(parentTask.id);
+            } else {
+                this.selectedTasks.delete(parentTask.id);
+            }
+
+            this.checkParentTaskSelection(parentTask.id);
+        }
+    }
+
+    //Считает количество дочерних задач у задачи
     getTotalTasksCount(task: Task): number {
         let count = 1; // Самая задача
         task.subtasks.forEach(subtask => count += this.getTotalTasksCount(subtask));
@@ -264,10 +294,6 @@ class SidebarStore {
 
     get selectedTasksCount(): number {
         return this.selectedTasks.size;
-    }
-
-    isTaskSelected(taskId: number): boolean {
-        return this.selectedTasks.has(taskId);
     }
 
     deleteSelectedTasks() {
