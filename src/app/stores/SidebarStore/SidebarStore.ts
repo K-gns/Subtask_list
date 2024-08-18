@@ -62,9 +62,13 @@ const taskDataMock: Task = {
 }
 
 //Функции взаимодействия с деревом задач
-const findTaskInTree = (tree: Task, id: number): [string, string] | null => {
+const findTaskInTree = (tree: Task, id: number): Task => {
     if (tree.id === id) {
-        return [tree.label ?? "undefined", tree.description ?? ""];
+        return {
+            id: tree.id ?? -1,
+            label: tree.label ?? "undefined",
+            description: tree.description ?? "",
+            subtasks: tree.subtasks ?? []};
     }
 
     for (let i = 0; i < tree.subtasks.length; i++) {
@@ -127,12 +131,14 @@ const deleteTaskFromTree = (tree: Task, id: number) : Task => {
 
 
 class SidebarStore {
-    taskData: Task = {id: 1, label: "root"}
+    taskData: Task = {id: 1, label: "root", description: "", subtasks: []}
     toggle = false;
 
     taskId = 0
     label = "Task title"
     description = "test description"
+
+    selectedTasks: Set<number> = new Set()
 
     constructor() {
         makeAutoObservable(this);
@@ -163,7 +169,7 @@ class SidebarStore {
         let result = findTaskInTree(this.taskData, this.taskId)
 
         if (result) {
-            const [label, description] = result;
+            const {id, label, description, subtasks} = result;
             this.label = label;
             this.description = description;
         } else {
@@ -188,15 +194,12 @@ class SidebarStore {
         this.saveToLocalStorage();
     }
 
-
     deleteTask(id: number) {
         this.taskData = deleteTaskFromTree(this.taskData, id);
-        console.log(`delete task: ${id == this.taskId}`)
         if (id == this.taskId) {
 
             this.toggleSidebar()
         }
-        console.log(id)
         this.saveToLocalStorage();
         return {...this.taskData}
     }
@@ -205,6 +208,85 @@ class SidebarStore {
         this.taskData = deleteTaskFromTree(this.taskData, this.taskId);
         this.saveToLocalStorage();
         this.toggle = false;
+        return {...this.taskData}
+    }
+
+    toggleTaskSelection(taskId: number, isChecked: boolean) {
+        const toggleSelectionInTree = (task: Task, isChecked: boolean) => {
+            if (isChecked) {
+                this.selectedTasks.add(task.id);
+            } else {
+                this.selectedTasks.delete(task.id);
+            }
+
+
+
+            task.subtasks.forEach(subtask => {
+                toggleSelectionInTree(subtask, isChecked);
+            });
+        };
+
+        const task = findTaskInTree(this.taskData, taskId);
+        if (task) {
+            //@ts-ignore
+            toggleSelectionInTree(task, isChecked);
+        }
+        console.log(this.selectedTasks)
+    }
+
+    toggleSelectAll(isChecked: boolean) {
+        const selectAllInTree = (task: Task, isChecked: boolean) => {
+            if (isChecked) {
+                this.selectedTasks.add(task.id);
+            } else {
+                this.selectedTasks.delete(task.id);
+            }
+
+            task.subtasks.forEach(subtask => selectAllInTree(subtask, isChecked));
+        };
+
+        selectAllInTree(this.taskData, isChecked);
+        console.log(this.selectedTasks)
+    }
+
+    //Проверяет, все ли дочерние задачи выбраны
+    areAllTasksSelected(): boolean {
+        const totalTasks = this.getTotalTasksCount(this.taskData);
+        return this.selectedTasks.size === totalTasks;
+    }
+
+    //Проверяет количество дочерних задач у задачи
+    getTotalTasksCount(task: Task): number {
+        let count = 1; // Самая задача
+        task.subtasks.forEach(subtask => count += this.getTotalTasksCount(subtask));
+        return count;
+    }
+
+    get selectedTasksCount(): number {
+        return this.selectedTasks.size;
+    }
+
+    isTaskSelected(taskId: number): boolean {
+        return this.selectedTasks.has(taskId);
+    }
+
+    deleteSelectedTasks() {
+        const deleteSelectedInTree = (task: Task): Task | null => {
+            if (this.selectedTasks.has(task.id)) {
+                return null;
+            }
+
+            const filteredSubtasks = task.subtasks
+                .map(deleteSelectedInTree)
+                .filter(subtask => subtask !== null);
+
+            return { ...task, subtasks: filteredSubtasks };
+        };
+
+        this.taskData = deleteSelectedInTree(this.taskData) || { ...this.taskData, subtasks: [] };
+        this.selectedTasks.clear();
+        this.saveToLocalStorage();
+
         return {...this.taskData}
     }
 

@@ -2,5 +2,34 @@
   font-size: var(--font-size-l)
 }
 
+.taskListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 50px;
+  margin-left: 50px;
+
+  input[type="checkbox"] {
+    margin-right: 10px;
+  }
+
+  span {
+    //flex-grow: 1;
+  }
+
+  button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    background-color: #e6e6e6;
+    color: #adadad;
+    cursor: not-allowed;
+  }
+}
 
 

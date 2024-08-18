@@ -7,8 +7,9 @@ import AddIcon from 'shared/assets/icons/addIcon16x16.svg'
 import { sidebarStore } from 'app/stores/SidebarStore/SidebarStore';
 
 
-import React, {useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import {MenuPopup} from "shared/ui/Popup/MenuPopup";
+import {Checkbox} from "@mui/material";
 
 
 interface TaskProps {
@@ -16,10 +17,11 @@ interface TaskProps {
     task: Task;
     hidden: boolean;
     updateTaskData: (taskData: Task[]) => void;
+    onCheckboxChange: (event: React.ChangeEvent<HTMLInputElement>, taskId: number) => void;
     toggleSubtask?: (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => void
 }
 
-export const TaskItem = ({className, task, hidden, updateTaskData }: TaskProps) => {
+export const TaskItem = ({className, task, hidden, updateTaskData, onCheckboxChange,  }: TaskProps) => {
     const [expanded, setExpanded] = useState(false)
 
     const handleDelete = () => {
@@ -43,6 +45,12 @@ export const TaskItem = ({className, task, hidden, updateTaskData }: TaskProps) 
         updateTaskData(newTaskData)
     }
 
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.stopPropagation()
+        const isChecked = event.target.checked;
+        sidebarStore.toggleTaskSelection(task.id, isChecked);
+    };
+
     const openSideBar = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
          //ToDo: Refactor
         e.stopPropagation()
@@ -54,16 +62,23 @@ export const TaskItem = ({className, task, hidden, updateTaskData }: TaskProps) 
         }
     }
 
+
     return (
         <ul className={classNames("", {}, [hidden ? cls.hidden : ""])}>
 
             {/*Рендер самого комментария*/}
             <li key={task.id} onClick={openSideBar}
                 className={task.subtasks?.length > 0 ? cls.haveSubtasks : cls.noSubtasks}>
+
                 {task.subtasks?.length > 0 &&
                     <span className={cls.dropdownIcon} onClick={ expandSubtasks}>
                         {expanded ? <DropdownIconExpanded/> : <DropdownIconCollapsed/>}
                     </span>}
+                <Checkbox
+                    checked={sidebarStore.selectedTasks.has(task.id)}
+                    onChange={handleCheckboxChange}
+                    onClick={(e) => e.stopPropagation()}
+                />
                 <span className={cls.taskName}>{task.label}</span>
                 <MenuPopup Menu1Name="Delete" Menu1Func={handleDelete} />
                 <span className={cls.addIcon} onClick={addTask}><AddIcon/></span>
@@ -74,6 +89,7 @@ export const TaskItem = ({className, task, hidden, updateTaskData }: TaskProps) 
                 <TaskItem key={item.id} task={item}
                           hidden={!expanded}
                           updateTaskData={updateTaskData}
+                          onCheckboxChange={handleCheckboxChange}
                 />
             )}
         </ul>
