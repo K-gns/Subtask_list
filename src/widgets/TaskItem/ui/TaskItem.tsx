@@ -7,7 +7,7 @@ import AddIcon from 'shared/assets/icons/addIcon16x16.svg'
 import { sidebarStore } from 'app/stores/SidebarStore/SidebarStore';
 
 
-import React, {ChangeEvent, useEffect, useState} from "react";
+import React, {useState} from "react";
 import {MenuPopup} from "shared/ui/Popup/MenuPopup";
 import {Checkbox} from "@mui/material";
 
@@ -54,7 +54,7 @@ export const TaskItem = ({className, task, hidden, updateTaskData, onCheckboxCha
     const openSideBar = (e: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
          //ToDo: Refactor
         e.stopPropagation()
-        if (task.label != sidebarStore.label && sidebarStore.toggle == true) {
+        if (task.id != sidebarStore.taskId && sidebarStore.toggle == true) {
             sidebarStore.changeCurrentTask(task.id)
         } else {
             sidebarStore.toggleSidebar()
