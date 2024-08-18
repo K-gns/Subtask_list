@@ -7,6 +7,7 @@ import {Navbar} from "widgets/Navbar";
 import {Sidebar} from "widgets/Sidebar";
 import {Provider} from "mobx-react";
 import {sidebarStore} from 'app/stores/SidebarStore/SidebarStore'
+import {TaskList} from "widgets/TaskList";
 
 
 
@@ -24,7 +25,9 @@ const App = () => {
                 <Navbar/>
                 <div className="content-page">
                     <Sidebar/>
-                    <AppRouter/>
+                    <div className="content">
+                        <TaskList/>
+                    </div>
                 </div>
             </div>
         </Provider>
