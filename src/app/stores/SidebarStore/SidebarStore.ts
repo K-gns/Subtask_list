@@ -200,6 +200,8 @@ class SidebarStore {
 
             this.toggleSidebar()
         }
+        if (this.taskId == this.taskId)
+            this.toggle = false
         this.saveToLocalStorage();
         this.selectedTasks.clear();
         return {...this.taskData}
@@ -311,6 +313,9 @@ class SidebarStore {
         };
 
         this.taskData = deleteSelectedInTree(this.taskData) || { ...this.taskData, subtasks: [] };
+
+        if (this.selectedTasks.has(this.taskId)) this.toggle = false
+
         this.selectedTasks.clear();
         this.saveToLocalStorage();
 

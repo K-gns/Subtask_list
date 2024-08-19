@@ -48,7 +48,7 @@ export const TaskList = ({className}: TaskListProps) => {
         e.stopPropagation()
         let newTaskData = sidebarStore.addUntitledTask(1)
         //@ts-ignore
-        updateTaskData(newTaskData)
+        setTaskData(newTaskData)
     }
 
     const handleCloseHint = () => {
