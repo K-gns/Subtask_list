@@ -22,9 +22,6 @@ export const Sidebar = ({className}: SidebarProps) => {
         sidebarStore.toggleSidebar()
     }
 
-    const handleDelete = () => {
-        sidebarStore.deleteCurrentSidebarTask()
-    }
 
     return (
         <div

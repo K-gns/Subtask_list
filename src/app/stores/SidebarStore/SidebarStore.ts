@@ -201,6 +201,7 @@ class SidebarStore {
             this.toggleSidebar()
         }
         this.saveToLocalStorage();
+        this.selectedTasks.clear();
         return {...this.taskData}
     }
 
